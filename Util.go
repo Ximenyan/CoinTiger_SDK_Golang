@@ -1,10 +1,12 @@
 package CoinTiger_SDK_Golang
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const API_PATH = "https://api.cointiger.pro"
@@ -29,9 +31,18 @@ const GET_KLine = Market_Macro + "/history/kline"
 /*获取成交历史数据*/
 const GET_TRADE = Market_Macro + "/history/trade"
 
+/*获取24小时行情 ALL*/
+const GET_24HOURS_ALL = "https://www.cointiger.pro/exchange/api/public/market/detail"
+
+/*创建订单*/
+const CREATE_ORDER = Trading_Macro_v2 + "/order"
+
+func getTimeStamp() string {
+	return strconv.FormatInt(time.Now().UTC().UnixNano(), 10)[:13]
+}
+
 /*HTTP GET*/
 func httpGet(url *url.URL) (string, error) {
-	fmt.Println(url.String())
 	resp, err := http.Get(url.String())
 	if err != nil {
 		return "", err
@@ -42,6 +53,20 @@ func httpGet(url *url.URL) (string, error) {
 		return "", err
 	}
 	return string(nbytes), nil
+}
+
+/* HTTP POST*/
+func httpPostForm(url *url.URL, values url.Values) (string, error) {
+	resp, err := http.PostForm(url.String(), values)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }
 
 /*获取服务器时间*/
@@ -71,6 +96,16 @@ func Get24Hours(coin_type string) (string, error) {
 	q.Set("api_key", API_KEY)
 	q.Set("symbol", coin_type)
 	u.RawQuery = q.Encode()
+	if err != nil {
+		return "", err
+	}
+	str, err := httpGet(u)
+	return str, err
+}
+
+/*获取24小时行情*/
+func Get24HoursAll() (string, error) {
+	u, err := url.Parse(GET_24HOURS_ALL)
 	if err != nil {
 		return "", err
 	}
@@ -135,6 +170,7 @@ func GetKLineEasy(coin_type, period string) (string, error) {
 /*获取历史成交*/
 /*size: 获取数量: [1,2000]*/
 func GetTrade(coin_type, size string) (string, error) {
+
 	u, err := url.Parse(GET_TRADE)
 	q := u.Query()
 	q.Set("api_key", API_KEY)
@@ -145,5 +181,34 @@ func GetTrade(coin_type, size string) (string, error) {
 		return "", err
 	}
 	str, err := httpGet(u)
+	return str, err
+}
+
+/*创建订单*/
+func CreateOder(coin_type, price, volume, side, strType string) (string, error) {
+
+	strTime := getTimeStamp()
+	u, err := url.Parse(CREATE_ORDER)
+	q := u.Query()
+	q.Set("api_key", API_KEY)
+	q.Set("time", strTime)
+	if err != nil {
+		return "", err
+	}
+	vals := url.Values{
+		"symbol": {coin_type},
+		"price":  {price},
+		"volume": {volume},
+		"side":   {side},
+		"type":   {strType},
+		"time":   {strTime}}
+	data := vals.Encode()
+	data = strings.Replace(data, "&", "", -1)
+	data = strings.Replace(data, "=", "", -1)
+	data = strings.Replace(data, " ", "", -1)
+	strSign := Sign(API_SECRET, data+API_SECRET)
+	q.Set("sign", strSign)
+	u.RawQuery = q.Encode()
+	str, err := httpPostForm(u, vals)
 	return str, err
 }
