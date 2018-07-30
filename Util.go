@@ -131,3 +131,19 @@ func GetKLineEasy(coin_type, period string) (string, error) {
 	str, err := httpGet(u)
 	return str, err
 }
+
+/*获取历史成交*/
+/*size: 获取数量: [1,2000]*/
+func GetTrade(coin_type, size string) (string, error) {
+	u, err := url.Parse(GET_TRADE)
+	q := u.Query()
+	q.Set("api_key", API_KEY)
+	q.Set("symbol", coin_type)
+	q.Set("size", size)
+	u.RawQuery = q.Encode()
+	if err != nil {
+		return "", err
+	}
+	str, err := httpGet(u)
+	return str, err
+}

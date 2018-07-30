@@ -39,9 +39,10 @@ func TestGetGetKLine(t *testing.T) {
 		t.Error(str)
 	}
 }
-func TestGetKLineEasy(t *testing.T) {
+
+func TestGetTrade(t *testing.T) {
 	InitSDK("100310001")
-	str, err := GetKLineEasy("tchbtc", "1day")
+	str, err := GetTrade("tchbtc", "10")
 	if err != nil {
 		t.Error(str)
 	}
