@@ -26,6 +26,9 @@ const GET_DEPTH = Market_Macro + "/depth"
 /*获取历史K线*/
 const GET_KLine = Market_Macro + "/history/kline"
 
+/*获取成交历史数据*/
+const GET_TRADE = Market_Macro + "/history/trade"
+
 /*HTTP GET*/
 func httpGet(url *url.URL) (string, error) {
 	fmt.Println(url.String())
