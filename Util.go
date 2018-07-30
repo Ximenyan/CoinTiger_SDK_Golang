@@ -1,6 +1,7 @@
 package CoinTiger_SDK_Golang
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -36,6 +37,9 @@ const GET_24HOURS_ALL = "https://www.cointiger.pro/exchange/api/public/market/de
 
 /*创建订单*/
 const CREATE_ORDER = Trading_Macro_v2 + "/order"
+
+/*撤销订单*/
+const CANCEL_ORDER = Trading_Macro_v2 + "/order/batch_cancel"
 
 func getTimeStamp() string {
 	return strconv.FormatInt(time.Now().UTC().UnixNano(), 10)[:13]
@@ -167,8 +171,8 @@ func GetKLineEasy(coin_type, period string) (string, error) {
 	return str, err
 }
 
-/*获取历史成交*/
-/*size: 获取数量: [1,2000]*/
+/*获取历史成交				*/
+/*size: 获取数量: [1,2000]	*/
 func GetTrade(coin_type, size string) (string, error) {
 
 	u, err := url.Parse(GET_TRADE)
@@ -184,7 +188,12 @@ func GetTrade(coin_type, size string) (string, error) {
 	return str, err
 }
 
-/*创建订单*/
+/* 创建订单				*/
+/* coin_type:	交易对*/
+/* price:		价格*/
+/* volume:		数量*/
+/* side:		买卖方向 买BUY 卖SELL*/
+/* strType:		1 ：限价交易，2：市价交易*/
 func CreateOder(coin_type, price, volume, side, strType string) (string, error) {
 
 	strTime := getTimeStamp()
@@ -206,6 +215,50 @@ func CreateOder(coin_type, price, volume, side, strType string) (string, error) 
 	data = strings.Replace(data, "&", "", -1)
 	data = strings.Replace(data, "=", "", -1)
 	data = strings.Replace(data, " ", "", -1)
+	strSign := Sign(API_SECRET, data+API_SECRET)
+	q.Set("sign", strSign)
+	u.RawQuery = q.Encode()
+	str, err := httpPostForm(u, vals)
+	return str, err
+}
+
+type Orders struct {
+	m map[string][]string
+}
+
+/*添加一个订单*/
+/*coin_type: 交易对*/
+/*order_num: 订单号*/
+func (o *Orders) AddOrder(coin_type, order_num string) {
+	if o.m == nil {
+		o.m = make(map[string][]string)
+		o.m[coin_type] = []string{order_num}
+	} else if o.m[coin_type] == nil {
+		o.m[coin_type] = []string{order_num}
+	} else {
+		o.m[coin_type] = append(o.m[coin_type], order_num)
+	}
+}
+
+/*批量结束订单*/
+func CancelOrders(o Orders) (string, error) {
+	strTime := getTimeStamp()
+	u, err := url.Parse(CANCEL_ORDER)
+	q := u.Query()
+	q.Set("api_key", API_KEY)
+	q.Set("time", strTime)
+	if err != nil {
+		return "", err
+	}
+	bytes, _ := json.Marshal(o.m)
+	vals := url.Values{
+		"orderIdList": {string(bytes)},
+		"time":        {strTime}}
+	data := vals.Encode()
+	data = strings.Replace(data, "&", "", -1)
+	data = strings.Replace(data, "=", "", -1)
+	data = strings.Replace(data, " ", "", -1)
+	data, _ = url.QueryUnescape(data)
 	strSign := Sign(API_SECRET, data+API_SECRET)
 	q.Set("sign", strSign)
 	u.RawQuery = q.Encode()

@@ -54,3 +54,9 @@ func TestCreateOder(t *testing.T) {
 	InitSDK("100310001", "NGMzMjI3MzlhNjYyOTE4NWY34234GDFJRTvcwertyuytQWEREWQQ3234mZDA0MzhmZWZmNg==")
 	CreateOder("tchbtc", "10.1", "100.1", "BUY", "1")
 }
+func TestCancelOder(t *testing.T) {
+	InitSDK("100310001", "NGMzMjI3MzlhNjYyOTE4NWY34234GDFJRTvcwertyuytQWEREWQQ3234mZDA0MzhmZWZmNg==")
+	o := Orders{}
+	o.AddOrder("tchbtc", "1234")
+	CancelOrders(o)
+}
