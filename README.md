@@ -7,6 +7,6 @@ CoinTiger SDK Golang 版
 或者
 
 ```
-> git clone github.com/Ximenyan/CoinTiger_SDK_Golang
+> git clone https://github.com/Ximenyan/CoinTiger_SDK_Golang.git
 ```
 敬请期待，正在紧张有序的开发中
