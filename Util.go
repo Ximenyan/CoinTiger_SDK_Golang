@@ -55,6 +55,9 @@ const GET_USER_HISTORY = Trading_Macro + "/order/history"
 /*用户撤单(单个)*/
 const DELETE_ORDER = Trading_Macro + "/order"
 
+/*获取资金状况*/
+const GET_BALANCE = Trading_Macro + "/user/balance"
+
 /*获取时间戳*/
 func getTimeStamp() string {
 	return strconv.FormatInt(time.Now().UTC().UnixNano(), 10)[:13]
@@ -91,7 +94,6 @@ func httpPostForm(url *url.URL, values url.Values) (string, error) {
 
 /* HTTP Delete*/
 func httpDelete(url *url.URL) (string, error) {
-
 	req, err := http.NewRequest(http.MethodDelete, url.String(), nil)
 	fmt.Println(url.String())
 	if err != nil {
@@ -452,5 +454,44 @@ func DeleteOrder(coin_type, order_id string) (string, error) {
 	q.Set("sign", strSign)
 	u.RawQuery = q.Encode()
 	str, err := httpDelete(u)
+	return str, err
+}
+
+/*获取资金状况(所有币种)*/
+func GetAllBalance() (string, error) {
+	u, err := url.Parse(GET_BALANCE)
+	strTime := getTimeStamp()
+	q := u.Query()
+	q.Set("time", strTime)
+	data := q.Encode()
+	data = strings.Replace(data, "&", "", -1)
+	data = strings.Replace(data, "=", "", -1)
+	data = strings.Replace(data, " ", "", -1)
+	data, _ = url.QueryUnescape(data)
+	strSign := Sign(API_SECRET, data+API_SECRET)
+	q.Set("api_key", API_KEY)
+	q.Set("sign", strSign)
+	u.RawQuery = q.Encode()
+	str, err := httpGet(u)
+	return str, err
+}
+
+/*获取资金状况(单个币种)*/
+func GetCoinBalance(coin_type string) (string, error) {
+	u, err := url.Parse(GET_BALANCE)
+	strTime := getTimeStamp()
+	q := u.Query()
+	q.Set("coin", coin_type)
+	q.Set("time", strTime)
+	data := q.Encode()
+	data = strings.Replace(data, "&", "", -1)
+	data = strings.Replace(data, "=", "", -1)
+	data = strings.Replace(data, " ", "", -1)
+	data, _ = url.QueryUnescape(data)
+	strSign := Sign(API_SECRET, data+API_SECRET)
+	q.Set("api_key", API_KEY)
+	q.Set("sign", strSign)
+	u.RawQuery = q.Encode()
+	str, err := httpGet(u)
 	return str, err
 }
