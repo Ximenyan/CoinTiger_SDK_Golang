@@ -60,3 +60,7 @@ func TestCancelOder(t *testing.T) {
 	o.AddOrder("tchbtc", "1234")
 	CancelOrders(o)
 }
+func TestGetAllOrders(t *testing.T) {
+	InitSDK("100310001", "NGMzMjI3MzlhNjYyOTE4NWY34234GDFJRTvcwertyuytQWEREWQQ3234mZDA0MzhmZWZmNg==")
+	GetAllOrder("tchbtc", "10")
+}
