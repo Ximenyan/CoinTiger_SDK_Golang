@@ -6,22 +6,26 @@ import (
 	"strings"
 )
 
-/*获取历史成交				*/
-/*size: 获取数量: [1,2000]	*/
-func GetTrade(coin_type, size string) (string, error) {
+/*创建订单*/
+const CREATE_ORDER = Trading_Macro_v2 + "/order"
 
-	u, err := url.Parse(GET_TRADE)
-	q := u.Query()
-	q.Set("api_key", API_KEY)
-	q.Set("symbol", coin_type)
-	q.Set("size", size)
-	u.RawQuery = q.Encode()
-	if err != nil {
-		return "", err
-	}
-	str, err := httpGet(u)
-	return str, err
-}
+/*撤销订单*/
+const CANCEL_ORDER = Trading_Macro_v2 + "/order/batch_cancel"
+
+/*获取当前委托*/
+const GET_NOW_ORDER = Trading_Macro_v2 + "/order/orders"
+
+/*获取当前用户订单,成交中和未成交*/
+const GET_NOW_USER_ORDER = Trading_Macro + "/order/new"
+
+/*获取当前用户订单,成交和已撤销*/
+const GET_USER_HISTORY = Trading_Macro + "/order/history"
+
+/*用户撤单(单个)*/
+const DELETE_ORDER = Trading_Macro + "/order"
+
+/*获取资金状况*/
+const GET_BALANCE = Trading_Macro + "/user/balance"
 
 /* 创建订单				*/
 /* coin_type:	交易对*/

@@ -30,27 +30,6 @@ const GET_TIMESTAMP = Trading_Macro_v2 + "/timestampw"
 /*获取支持的所有币种*/
 const GET_CURRENCYS = Trading_Macro_v2 + "/currencys"
 
-/*创建订单*/
-const CREATE_ORDER = Trading_Macro_v2 + "/order"
-
-/*撤销订单*/
-const CANCEL_ORDER = Trading_Macro_v2 + "/order/batch_cancel"
-
-/*获取当前委托*/
-const GET_NOW_ORDER = Trading_Macro_v2 + "/order/orders"
-
-/*获取当前用户订单,成交中和未成交*/
-const GET_NOW_USER_ORDER = Trading_Macro + "/order/new"
-
-/*获取当前用户订单,成交和已撤销*/
-const GET_USER_HISTORY = Trading_Macro + "/order/history"
-
-/*用户撤单(单个)*/
-const DELETE_ORDER = Trading_Macro + "/order"
-
-/*获取资金状况*/
-const GET_BALANCE = Trading_Macro + "/user/balance"
-
 /**
 *	获取深度
 *   coin_type:交易对
@@ -142,6 +121,23 @@ func Get24Hours(coin_type string) (string, error) {
 /*获取所有币种交易对24小时行情*/
 func Get24HoursAll() (string, error) {
 	u, err := url.Parse(GET_24HOURS_ALL)
+	if err != nil {
+		return "", err
+	}
+	str, err := httpGet(u)
+	return str, err
+}
+
+/*获取历史成交				*/
+/*size: 获取数量: [1,2000]	*/
+func GetTrade(coin_type, size string) (string, error) {
+
+	u, err := url.Parse(GET_TRADE)
+	q := u.Query()
+	q.Set("api_key", API_KEY)
+	q.Set("symbol", coin_type)
+	q.Set("size", size)
+	u.RawQuery = q.Encode()
 	if err != nil {
 		return "", err
 	}
